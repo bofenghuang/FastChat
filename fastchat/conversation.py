@@ -12,6 +12,7 @@ from io import BytesIO
 import os
 from typing import List, Any, Dict, Union, Tuple
 
+from mistralai.models.chat_completion import ChatMessage
 
 class SeparatorStyle(IntEnum):
     """Separator styles."""
@@ -690,6 +691,17 @@ class Conversation:
             "offset": self.offset,
         }
 
+    def to_mistralai_api_messages(self):
+        """Convert the conversation to OpenAI chat completion format."""
+        ret = []
+
+        for i, (_, msg) in enumerate(self.messages[self.offset :]):
+            if i % 2 == 0:
+                ret.append(ChatMessage(role="user", content=msg))
+            else:
+                if msg is not None:
+                    ret.append(ChatMessage(role="assistant", content=msg))
+        return ret
 
 # A global registry for all conversation templates
 conv_templates: Dict[str, Conversation] = {}
@@ -926,6 +938,20 @@ register_conv_template(
         roles=("<|prompter|>", "<|assistant|>"),
         sep_style=SeparatorStyle.NO_COLON_SINGLE,
         sep="</s>",
+    )
+)
+
+# Alfred default template
+# https://huggingface.co/lightonai/alfred-40b-1023#direct-use
+register_conv_template(
+    Conversation(
+        name="alfred",
+        system_template="<start_system>{system_message}<end_message>",
+        system_message="You are Alfred, a helpful assistant trained by LightOn. Knowledge cutoff: November 2022. Current date: 15 December, 2023",
+        roles=("<start_user>", "<start_assistant>"),
+        sep_style=SeparatorStyle.NO_COLON_SINGLE,
+        sep="<end_message>",
+        stop_token_ids=[65020],
     )
 )
 

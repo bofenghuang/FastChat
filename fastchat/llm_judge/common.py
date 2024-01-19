@@ -14,9 +14,14 @@ from typing import Optional
 import openai
 import anthropic
 
+from mistralai.client import MistralClient
+# from vertexai.preview.generative_models import GenerationConfig
+# from vertexai.generative_models._generative_models import HarmCategory, HarmBlockThreshold, ResponseBlockedError
+
 from fastchat.model.model_adapter import (
     get_conversation_template,
     ANTHROPIC_MODEL_LIST,
+    MISTRAL_MODEL_LIST,
     OPENAI_MODEL_LIST,
 )
 
@@ -167,6 +172,10 @@ def run_judge_single(question, answer, judge, ref_answer, multi_turn=False):
         judgment = chat_completion_openai(model, conv, temperature=0, max_tokens=2048)
     elif model in ANTHROPIC_MODEL_LIST:
         judgment = chat_completion_anthropic(
+            model, conv, temperature=0, max_tokens=1024
+        )
+    elif model in MISTRAL_MODEL_LIST:
+        judgment = chat_completion_mistral(
             model, conv, temperature=0, max_tokens=1024
         )
     else:
@@ -517,6 +526,63 @@ def chat_completion_palm(chat_state, model, conv, temperature, max_tokens):
             print(type(e), e)
             time.sleep(API_RETRY_SLEEP)
     return chat_state, output
+
+
+# https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/getting-started/intro_gemini_python.ipynb
+# def chat_completion_gemini(chat_state, model, conv, temperature, max_tokens):
+#     from fastchat.serve.api_provider import init_gemini_chat
+
+#     assert model == "gemini-pro"
+
+#     if chat_state is None:
+#         chat_state = init_gemini_chat(model)
+
+#     generation_config = GenerationConfig(
+#         temperature=temperature,
+#         # top_p=1.0,
+#         # top_k=40,
+#         candidate_count=1,
+#         max_output_tokens=max_tokens,
+#     )
+
+#     safety_settings = {
+#         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+#         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+#         HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+#         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+#     }
+
+#     output = API_ERROR_OUTPUT
+#     API_MAX_RETRY = 4
+#     for _ in range(API_MAX_RETRY):
+#         try:
+#             response = chat_state.send_message(conv.messages[-2][1], generation_config=generation_config, safety_settings=safety_settings)
+#             output = response.text
+#             break
+#         except Exception as e:
+#             print(type(e), e)
+#             time.sleep(API_RETRY_SLEEP)
+#     return chat_state, output
+
+
+def chat_completion_mistral(model, conv, temperature, max_tokens):
+    output = API_ERROR_OUTPUT
+    for _ in range(API_MAX_RETRY):
+        try:
+            c = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
+            messages = conv.to_mistralai_api_messages()
+            response = c.chat(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            output = response.choices[0].message.content
+            break
+        except Exception as e:
+            print(type(e), e)
+            time.sleep(API_RETRY_SLEEP)
+    return output
 
 
 def normalize_game_key_single(gamekey, result):

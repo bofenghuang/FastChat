@@ -209,12 +209,25 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # debug
+    # arg_string = "--bench-name mt_bench_french --judge-model gpt-4-0314 --model-list gpt-3.5-turbo-0613 gpt-4-0314 vigostral-7b-chat"
+    # args = parser.parse_args(arg_string.split())
+
     question_file = f"data/{args.bench_name}/question.jsonl"
     answer_dir = f"data/{args.bench_name}/model_answer"
     ref_answer_dir = f"data/{args.bench_name}/reference_answer"
 
     # Load questions
     questions = load_questions(question_file, None, None)
+
+    # tmp
+    # selected_ids = [131] + list(range(101, 131))
+    # selected_ids = [104, 111, 114, 121, 122, 124, 126, 127, 128, 129, 130]
+    # questions = [x for x in questions if x["question_id"] in selected_ids]
+
+    # tmp
+    # excluded_ids = [98, 110, 137]
+    # questions = [x for x in questions if x["question_id"] not in excluded_ids]
 
     # Load answers
     model_answers = load_model_answers(answer_dir)

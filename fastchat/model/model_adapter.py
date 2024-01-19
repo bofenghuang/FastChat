@@ -93,6 +93,15 @@ OPENAI_MODEL_LIST = (
     "o1-mini",
 )
 
+MISTRAL_MODEL_LIST = (
+    "mistral-tiny",
+    "mistral-small",
+    "mistral-medium",
+)
+
+# GEMINI_MODEL_LIST = (
+#     "gemini-pro",
+# )
 
 class BaseModelAdapter:
     """The base and the default model adapter."""
@@ -1548,6 +1557,7 @@ class MistralAdapter(BaseModelAdapter):
     """The model adapter for Mistral AI models"""
 
     def match(self, model_path: str):
+        # return "mistral" in model_path.lower()
         return "mistral" in model_path.lower() or "mixtral" in model_path.lower()
 
     def load_model(self, model_path: str, from_pretrained_kwargs: dict):
@@ -1558,6 +1568,28 @@ class MistralAdapter(BaseModelAdapter):
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         return get_conv_template("mistral")
+
+
+class AlfredAdapter(BaseModelAdapter):
+    """The model adapter for Aflred models"""
+
+    def match(self, model_path: str):
+        return "alfred" in model_path.lower()
+
+    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
+        revision = from_pretrained_kwargs.get("revision", "main")
+        # Strongly suggest using bf16, which is recommended by the author of Falcon
+        tokenizer = AutoTokenizer.from_pretrained(model_path, revision=revision)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+            **from_pretrained_kwargs,
+        )
+        return model, tokenizer
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("alfred")
 
 
 class Llama2Adapter(BaseModelAdapter):
@@ -2012,7 +2044,8 @@ class VigogneAdapter(BaseModelAdapter):
 
     def get_default_conv_template(self, model_path: str) -> Conversation:
         if "chat" in model_path.lower():
-            if "vigostral" in model_path.lower():
+            # if "vigostral" in model_path.lower():
+            if "vigostral" in model_path.lower() or "vigogne-2-70b-chat" in model_path.lower():
                 return get_conv_template("vigogne_chat_v3")
             return get_conv_template("vigogne_chat_v2")
         return get_conv_template("vigogne_instruct")
@@ -2557,6 +2590,7 @@ register_model_adapter(Hermes2Adapter)
 register_model_adapter(NousHermes2MixtralAdapter)
 register_model_adapter(NousHermesAdapter)
 register_model_adapter(MistralAdapter)
+register_model_adapter(AlfredAdapter)
 register_model_adapter(WizardCoderAdapter)
 register_model_adapter(QwenChatAdapter)
 register_model_adapter(AquilaChatAdapter)

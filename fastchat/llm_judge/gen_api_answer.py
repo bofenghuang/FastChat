@@ -19,9 +19,12 @@ from fastchat.llm_judge.common import (
     chat_completion_openai,
     chat_completion_anthropic,
     chat_completion_palm,
+    # chat_completion_gemini,
+    chat_completion_mistral,
 )
 from fastchat.llm_judge.gen_model_answer import reorg_answer_file
-from fastchat.model.model_adapter import get_conversation_template, ANTHROPIC_MODEL_LIST
+# from fastchat.model.model_adapter import get_conversation_template, ANTHROPIC_MODEL_LIST, MISTRAL_MODEL_LIST, GEMINI_MODEL_LIST
+from fastchat.model.model_adapter import get_conversation_template, ANTHROPIC_MODEL_LIST, MISTRAL_MODEL_LIST
 
 
 def get_answer(
@@ -55,8 +58,20 @@ def get_answer(
                 chat_state, output = chat_completion_palm(
                     chat_state, model, conv, temperature, max_tokens
                 )
+            # elif model in GEMINI_MODEL_LIST:
+            #     chat_state, output = chat_completion_gemini(
+            #         chat_state, model, conv, temperature, max_tokens
+            #     )
+            elif model in MISTRAL_MODEL_LIST:
+                output = chat_completion_mistral(
+                    model, conv, temperature, max_tokens
+                )
             else:
                 output = chat_completion_openai(model, conv, temperature, max_tokens)
+                # output = chat_completion_openai(model, conv, temperature, max_tokens, {
+                #     "api_key": "EMPTY",
+                #     "api_base": "http://localhost:8000/v1",
+                # })
 
             conv.update_last_message(output)
             turns.append(output)
@@ -116,6 +131,13 @@ if __name__ == "__main__":
     parser.add_argument("--openai-api-base", type=str, default=None)
     args = parser.parse_args()
 
+    # debug
+    # arg_string = "--bench-name mt_bench_french --model mistral-small --question-begin 50 --question-end 51"
+    # arg_string = "--bench-name mt_bench_french --model gemini-pro --question-begin 21 --question-end 22"
+    # arg_string = "--bench-name mt_bench_french --model gemini-pro --max-tokens 4096"
+    # arg_string = "--bench-name mt_bench_french --model palm-2-chat-bison-001 --question-begin 21 --question-end 22"
+    # args = parser.parse_args(arg_string.split())
+
     if args.openai_api_base is not None:
         openai.api_base = args.openai_api_base
 
@@ -127,6 +149,11 @@ if __name__ == "__main__":
     else:
         answer_file = f"data/{args.bench_name}/model_answer/{args.model}.jsonl"
     print(f"Output to {answer_file}")
+
+    # tmp
+    # existed_answers = load_questions(answer_file, None, None)
+    # existed_answer_ids = [a["question_id"] for a in existed_answers]
+    # questions = [q for q in questions if q["question_id"] not in existed_answer_ids]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel) as executor:
         futures = []
