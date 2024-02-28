@@ -94,9 +94,14 @@ OPENAI_MODEL_LIST = (
 )
 
 MISTRAL_MODEL_LIST = (
-    "mistral-tiny",
-    "mistral-small",
-    "mistral-medium",
+    # "mistral-tiny",
+    # "mistral-small",
+    # "mistral-medium",
+    "mistral-tiny-2312",  # open-mistral-7b
+    "mistral-small-2312",  # open-mixtral-8x7b
+    "mistral-small-2402",
+    "mistral-medium-2312",
+    "mistral-large-2402",
 )
 
 # GEMINI_MODEL_LIST = (
