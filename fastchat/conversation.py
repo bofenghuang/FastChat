@@ -955,6 +955,18 @@ register_conv_template(
     )
 )
 
+# C4AI-Command-R default template
+# https://huggingface.co/CohereForAI/c4ai-command-r-v01
+register_conv_template(
+    Conversation(
+        name="command",
+        roles=("<|START_OF_TURN_TOKEN|><|USER_TOKEN|>", "<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>"),
+        sep_style=SeparatorStyle.NO_COLON_SINGLE,
+        sep="<|END_OF_TURN_TOKEN|>",
+        stop_str="<|END_OF_TURN_TOKEN|>",
+    )
+)
+
 # OpenChat 3.5 default template
 register_conv_template(
     Conversation(

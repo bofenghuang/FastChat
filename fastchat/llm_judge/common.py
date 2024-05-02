@@ -476,6 +476,33 @@ def chat_completion_openai_azure(model, conv, temperature, max_tokens, api_dict=
     return output
 
 
+# def chat_completion_anthropic(model, conv, temperature, max_tokens, api_dict=None):
+#     if api_dict is not None and "api_key" in api_dict:
+#         api_key = api_dict["api_key"]
+#     else:
+#         api_key = os.environ["ANTHROPIC_API_KEY"]
+
+#     output = API_ERROR_OUTPUT
+#     for _ in range(API_MAX_RETRY):
+#         try:
+#             c = anthropic.Anthropic(api_key=api_key)
+#             prompt = conv.get_prompt()
+#             response = c.completions.create(
+#                 model=model,
+#                 prompt=prompt,
+#                 stop_sequences=[anthropic.HUMAN_PROMPT],
+#                 max_tokens_to_sample=max_tokens,
+#                 temperature=temperature,
+#             )
+#             output = response.completion
+#             break
+#         except anthropic.APIError as e:
+#             print(type(e), e)
+#             time.sleep(API_RETRY_SLEEP)
+#     return output.strip()
+
+
+# new version
 def chat_completion_anthropic(model, conv, temperature, max_tokens, api_dict=None):
     if api_dict is not None and "api_key" in api_dict:
         api_key = api_dict["api_key"]
@@ -486,15 +513,14 @@ def chat_completion_anthropic(model, conv, temperature, max_tokens, api_dict=Non
     for _ in range(API_MAX_RETRY):
         try:
             c = anthropic.Anthropic(api_key=api_key)
-            prompt = conv.get_prompt()
-            response = c.completions.create(
+            messages = conv.to_openai_api_messages()
+            response = c.messages.create(
                 model=model,
-                prompt=prompt,
-                stop_sequences=[anthropic.HUMAN_PROMPT],
-                max_tokens_to_sample=max_tokens,
+                messages=messages,
+                max_tokens=max_tokens,
                 temperature=temperature,
             )
-            output = response.completion
+            output = response.content[0].text
             break
         except anthropic.APIError as e:
             print(type(e), e)

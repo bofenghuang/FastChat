@@ -136,6 +136,7 @@ if __name__ == "__main__":
     # arg_string = "--bench-name mt_bench_french --model gemini-pro --question-begin 21 --question-end 22"
     # arg_string = "--bench-name mt_bench_french --model gemini-pro --max-tokens 4096"
     # arg_string = "--bench-name mt_bench_french --model palm-2-chat-bison-001 --question-begin 21 --question-end 22"
+    # arg_string = "--bench-name mt_bench_french --model claude-3-sonnet-20240229 --question-begin 21 --question-end 22"
     # args = parser.parse_args(arg_string.split())
 
     if args.openai_api_base is not None:

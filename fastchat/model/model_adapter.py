@@ -65,6 +65,9 @@ ANTHROPIC_MODEL_LIST = (
     "claude-3-opus-20240229",
     "claude-instant-1",
     "claude-instant-1.2",
+    "claude-3-opus-20240229",
+    "claude-3-sonnet-20240229",
+    "claude-3-haiku-20240307",
 )
 
 OPENAI_MODEL_LIST = (
@@ -102,6 +105,7 @@ MISTRAL_MODEL_LIST = (
     "mistral-small-2402",
     "mistral-medium-2312",
     "mistral-large-2402",
+    "open-mixtral-8x22b-2404",
 )
 
 # GEMINI_MODEL_LIST = (
@@ -1597,6 +1601,26 @@ class AlfredAdapter(BaseModelAdapter):
         return get_conv_template("alfred")
 
 
+class CommandAdapter(BaseModelAdapter):
+    """The model adapter for Command models"""
+
+    def match(self, model_path: str):
+        return "command" in model_path.lower()
+
+    def load_model(self, model_path: str, from_pretrained_kwargs: dict):
+        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+            **from_pretrained_kwargs,
+        )
+        return model, tokenizer
+
+    def get_default_conv_template(self, model_path: str) -> Conversation:
+        return get_conv_template("command")
+
+
 class Llama2Adapter(BaseModelAdapter):
     """The model adapter for Llama-2 (e.g., meta-llama/Llama-2-7b-hf)"""
 
@@ -2596,6 +2620,7 @@ register_model_adapter(NousHermes2MixtralAdapter)
 register_model_adapter(NousHermesAdapter)
 register_model_adapter(MistralAdapter)
 register_model_adapter(AlfredAdapter)
+register_model_adapter(CommandAdapter)
 register_model_adapter(WizardCoderAdapter)
 register_model_adapter(QwenChatAdapter)
 register_model_adapter(AquilaChatAdapter)
