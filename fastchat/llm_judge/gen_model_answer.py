@@ -4,9 +4,6 @@ Usage:
 python3 gen_model_answer.py --model-path lmsys/fastchat-t5-3b-v1.0 --model-id fastchat-t5-3b-v1.0
 """
 
-# import os
-# os.environ["HF_HOME"] = "/projects/bhuang/.cache/huggingface"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
 
 import argparse
 import json
@@ -276,13 +273,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    # debug
-    # arg_string = "--bench-name mt_bench_french --model-path mistralai/Mixtral-8x7B-Instruct-v0.1 --model-id mixtral-8x7b-instruct-v0.1 --num-gpus-total 3 --num-gpus-per-model 3 --question-begin 34"
-    # arg_string = "--bench-name mt_bench_french --model-path bofenghuang/vigostral-7b-chat --model-id vigostral-7b-chat"
-    # arg_string = "--bench-name mt_bench_french --model-path teknium/OpenHermes-2.5-Mistral-7B --model-id openhermes-2.5-mistral-7b"
-    # arg_string = "--bench-name mt_bench_french --model-path lightonai/alfred-40b-1023 --model-id alfred-40b-1023 --num-gpus-total 2 --num-gpus-per-model 2"
-    # args = parser.parse_args(arg_string.split())
 
     if args.num_gpus_total // args.num_gpus_per_model > 1:
         import ray
