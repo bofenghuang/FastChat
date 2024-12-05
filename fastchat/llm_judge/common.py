@@ -14,7 +14,7 @@ from typing import Optional
 import openai
 import anthropic
 
-from mistralai.client import MistralClient
+# from mistralai.client import MistralClient
 # from vertexai.preview.generative_models import GenerationConfig
 # from vertexai.generative_models._generative_models import HarmCategory, HarmBlockThreshold, ResponseBlockedError
 
@@ -591,7 +591,46 @@ def chat_completion_palm(chat_state, model, conv, temperature, max_tokens):
 #     return chat_state, output
 
 
+# https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python#multi-turn_conversations
+# https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/getting-started/intro_gemini_python.ipynb
+def chat_completion_google_genai(chat_state, model, conv, temperature, max_tokens, api_dict=None):
+    # pip install -q -U google-generativeai
+    import google.generativeai as genai
+
+    def init_google_genai_chat(model, api_dict=None):
+        if api_dict is not None and "api_key" in api_dict:
+            api_key = api_dict["api_key"]
+        else:
+            api_key = os.environ["GOOGLE_API_KEY"]
+
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(model)
+        chat = model.start_chat(history=[])
+        return chat
+
+    if chat_state is None:
+        chat_state = init_google_genai_chat(model, api_dict)
+
+    gen_config = genai.types.GenerationConfig(
+        temperature=temperature,
+        max_output_tokens=max_tokens,
+    )
+
+    output = API_ERROR_OUTPUT
+    for _ in range(API_MAX_RETRY):
+        try:
+            response = chat_state.send_message(conv.messages[-2][1], generation_config=gen_config)
+            output = response.text
+            break
+        except Exception as e:
+            print(type(e), e)
+            time.sleep(API_RETRY_SLEEP)
+    return chat_state, output
+
+
 def chat_completion_mistral(model, conv, temperature, max_tokens):
+    from mistralai.client import MistralClient
+
     output = API_ERROR_OUTPUT
     for _ in range(API_MAX_RETRY):
         try:

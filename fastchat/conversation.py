@@ -2078,6 +2078,52 @@ register_conv_template(
     )
 )
 
+# register_conv_template(
+#     Conversation(
+#         name="vigogne_chat_v4",
+#         system_template="<|system|>\n{system_message}\n",
+#         roles=("<|user|>\n", "<|assistant|>\n"),
+#         sep_style=SeparatorStyle.NO_COLON_TWO_SYS,
+#         sep="\n",
+#         sep2="</s>\n",
+#         stop_str="</s>",
+#     )
+# )
+
+# register_conv_template(
+#     Conversation(
+#         name="vigogne_chat_v4",
+#         system_template="<|system|>{system_message}",
+#         roles=("<|user|>", "<|assistant|>"),
+#         sep_style=SeparatorStyle.NO_COLON_TWO,
+#         sep="",
+#         sep2="</s>",
+#         stop_str="</s>",
+#     )
+# )
+
+register_conv_template(
+    Conversation(
+        name="vigogne_chat_v4",
+        system_template="<|system|>{system_message}</s>",
+        roles=("<|user|>", "<|assistant|>"),
+        sep_style=SeparatorStyle.NO_COLON_SINGLE,
+        sep="</s>",
+        stop_str="</s>",
+    )
+)
+
+register_conv_template(
+    Conversation(
+        name="vigogne_chat_v4_mistral",
+        system_template="<|system|>{system_message}</s>",
+        roles=("<|user|>", "<|assistant|>"),
+        sep_style=SeparatorStyle.NO_COLON_SINGLE,
+        sep="</s>",
+        stop_str="</s>",
+    )
+)
+
 # Falcon 180B chat template
 # source: https://huggingface.co/spaces/tiiuae/falcon-180b-demo/blob/d1590ee7fae9b6ce331ba7808e61a29dcce9239f/app.py#L28-L37
 register_conv_template(

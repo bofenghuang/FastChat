@@ -102,12 +102,18 @@ MISTRAL_MODEL_LIST = (
     "mistral-small-2402",
     "mistral-medium-2312",
     "mistral-large-2402",
+    "mistral-large-2407",
     "open-mixtral-8x22b-2404",
+    "ministral-3b-2410",
+    "ministral-8b-2410",
 )
 
-# GEMINI_MODEL_LIST = (
-#     "gemini-pro",
-# )
+GEMINI_MODEL_LIST = (
+    # "gemini-pro",
+    "gemini-1.5-pro",
+    "gemini-1.5-flash",
+    "gemini-1.0-pro",
+)
 
 class BaseModelAdapter:
     """The base and the default model adapter."""
